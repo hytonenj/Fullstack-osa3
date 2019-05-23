@@ -23,12 +23,12 @@ app.get('/api/persons', (req, res) => {
     res.json(persons)
 })
 
-//add that damn zero
+// add that damn zero
 const pad = (n) => {
     return n < 10 ? '0' + n : n
 }
 
-//date obj
+// date obj
 var d = new Date();
 const tzOffset = () => {
     var tz = d.getTimezoneOffset();
@@ -40,19 +40,28 @@ const tzOffset = () => {
     )
 }
 
+// info
 app.get('/info', (req, res) => {
     res.send(`<p>Puhelinluettelossa ${persons.length} henkilön tiedot</p>
     <p> ${d.toUTCString()} ${tzOffset()} </p>`)
 })
 
+// valitun hakeminen
 app.get('/api/persons/:id', (req, res) => {
     const id = Number(req.params.id)
     const person = persons.filter(p => p.id === id)
-    if (person.length===1) {
+    if (person.length === 1) {
         res.json(person)
-    }else{
+    } else {
         res.status(404).end()
     }
+})
+
+// valitun poisto
+app.delete('/api/persons/:id', (req, res) => {
+    const id = Number(req.params.id)
+    persons = persons.filter(p => p.id !== id)
+    res.status(204).end()
 })
 
 const PORT = 3001
