@@ -1,5 +1,6 @@
 const express = require('express')
 const app = express()
+const bodyParser = require('body-parser')
 
 let persons = [
     {
@@ -18,6 +19,7 @@ let persons = [
         number: '12345'
     }
 ]
+app.use(bodyParser.json())
 
 app.get('/api/persons', (req, res) => {
     res.json(persons)
@@ -28,22 +30,10 @@ const pad = (n) => {
     return n < 10 ? '0' + n : n
 }
 
-// date obj
-var d = new Date();
-const tzOffset = () => {
-    var tz = d.getTimezoneOffset();
-    var sign = tz > 0 ? "-" : "+";
-    var hours = pad(Math.floor(Math.abs(tz) / 60));
-    var minutes = pad(Math.abs(tz) % 60);
-    return (
-        sign + hours + ":" + minutes
-    )
-}
-
 // info
 app.get('/info', (req, res) => {
     res.send(`<p>Puhelinluettelossa ${persons.length} henkilön tiedot</p>
-    <p> ${d.toUTCString()} ${tzOffset()} </p>`)
+    <p> ${Date()} </p>`)
 })
 
 // valitun hakeminen
@@ -63,6 +53,28 @@ app.delete('/api/persons/:id', (req, res) => {
     persons = persons.filter(p => p.id !== id)
     res.status(204).end()
 })
+
+app.post('/api/persons', (req, res) => {
+    const body = req.body
+    if (body.name===undefined || body.number===undefined) {
+        return res.status(400).json({
+            error: 'stuff missing'
+        })
+    }
+
+    const person = {
+        id: generateId(),
+        name: body.name,
+        number: body.number
+    }
+
+    persons = persons.concat(person)
+    res.json(person)
+})
+
+const generateId = () => {
+    return (Math.floor(Math.random() * Number.MAX_SAFE_INTEGER))
+}
 
 const PORT = 3001
 app.listen(PORT, () => {
