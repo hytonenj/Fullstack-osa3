@@ -19,12 +19,34 @@ let persons = [
     }
 ]
 
-app.get('/api/persons', (req, res) =>{
+app.get('/api/persons', (req, res) => {
     res.json(persons)
 })
 
+//add that damn zero
+const pad = (n) => {
+    return n < 10 ? '0' + n : n
+}
+
+//date obj
+var d = new Date();
+const tzOffset = () => {
+    var tz = d.getTimezoneOffset();
+    var sign = tz > 0 ? "-" : "+";
+    var hours = pad(Math.floor(Math.abs(tz) / 60));
+    var minutes = pad(Math.abs(tz) % 60);
+    return (
+        sign + hours + ":" + minutes
+    )
+}
+
+app.get('/info', (req, res) => {
+    res.send(`<p>Puhelinluettelossa ${persons.length} henkilön tiedot</p>
+    <p> ${d.toUTCString()} ${tzOffset()} </p>`)
+})
+
 const PORT = 3001
-app.listen(PORT, ()=>{
+app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
-    
+
 })
