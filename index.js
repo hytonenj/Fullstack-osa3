@@ -1,43 +1,28 @@
+require('dotenv').config()
 const express = require('express')
 const app = express()
 const bodyParser = require('body-parser')
 const morgan = require('morgan')
 const cors = require('cors')
-
-let persons = [
-    {
-        id: 1,
-        name: 'test',
-        number: '123'
-    },
-    {
-        id: 2,
-        name: 'test2',
-        number: '1234'
-    },
-    {
-        id: 3,
-        name: 'test3',
-        number: '12345'
-    }
-]
+const Person = require('./models/person')
 
 app.use(bodyParser.json())
 app.use(cors())
 app.use(express.static('build'))
 
-//app.use(morgan('tiny'))
 morgan.token('body', function (req, res) { return JSON.stringify(req.body) });
 app.use(morgan(':method :url :status :response-time ms - :body'));
 
+
+
 app.get('/api/persons', (req, res) => {
-    res.json(persons)
+    Person.find({}).then(people => {
+        console.log(people)
+        res.json(people.map(p => p.toJSON()))
+    })
+    //res.json(persons)
 })
 
-// add that damn zero
-const pad = (n) => {
-    return n < 10 ? '0' + n : n
-}
 
 // info
 app.get('/info', (req, res) => {
@@ -63,6 +48,7 @@ app.delete('/api/persons/:id', (req, res) => {
     res.status(204).end()
 })
 
+//lisääminen
 app.post('/api/persons', (req, res) => {
     const body = req.body
     if (body.name===undefined || body.number===undefined) {
@@ -70,20 +56,24 @@ app.post('/api/persons', (req, res) => {
             error: 'You must enter name and number'
         })
     }
+    /* vanha tarkistus
     if(persons.find(p=>p.name===body.name)){
         return res.status(400).json(
             { error: 'Name must be unique' }
         )
     }
+    */
 
-    const person = {
-        id: generateId(),
+    const person = new Person({
+        //tietokanta generoi id:n?
+        //id: generateId(),
         name: body.name,
         number: body.number
-    }
+    })
 
-    persons = persons.concat(person)
-    res.json(person)
+    person.save().then(savedPerson => {
+        res.json(savedPerson.toJSON())
+    })
 })
 
 const generateId = () => {

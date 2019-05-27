@@ -10,6 +10,7 @@ const pswd = process.argv[2]
 const name = process.argv[3]
 const number = process.argv[4]
 
+
 const url = `mongodb+srv://fullstack:${pswd}@cluster0-ugeel.mongodb.net/person-app?retryWrites=true`
 mongoose.connect(url, { useNewUrlParser: true })
 
