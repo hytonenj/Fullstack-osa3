@@ -23,25 +23,28 @@ app.get('/api/persons', (req, res, next) => {
         res.json(people.map(p => p.toJSON()))
     })
         .catch(error => next(error))
-    //res.json(persons)
 })
 
 
 // info
 app.get('/info', (req, res) => {
-    res.send(`<p>Puhelinluettelossa ${persons.length} henkilön tiedot</p>
-    <p> ${Date()} </p>`)
+    Person.countDocuments()
+        .then(response => {
+            res.send(`<p>Puhelinluettelossa ${response} henkilön tiedot</p>
+            <p> ${Date()} </p>`)
+        })
 })
 
 // valitun hakeminen
-app.get('/api/persons/:id', (req, res) => {
-    const id = Number(req.params.id)
-    const person = persons.filter(p => p.id === id)
-    if (person.length === 1) {
-        res.json(person)
-    } else {
-        res.status(404).end()
-    }
+app.get('/api/persons/:id', (req, res, next) => {
+    Person.findById(req.params.id)
+        .then(person => {
+            if (person) {
+                res.json(person.toJSON())
+            } else {
+                res.status(404).end()
+            }
+        }).catch(error => next(error))
 })
 
 // valitun poisto
