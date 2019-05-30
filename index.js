@@ -13,8 +13,8 @@ app.use(cors())
 
 mongoose.set('useFindAndModify', false)
 
-morgan.token('body', function (req, res) { return JSON.stringify(req.body) });
-app.use(morgan(':method :url :status :response-time ms - :body'));
+morgan.token('body', function (req) { return JSON.stringify(req.body) })
+app.use(morgan(':method :url :status :response-time ms - :body'))
 
 
 
@@ -50,9 +50,7 @@ app.get('/api/persons/:id', (req, res, next) => {
 // valitun poisto
 app.delete('/api/persons/:id', (req, res, next) => {
     Person.findByIdAndRemove(req.params.id)
-        .then(result => {
-            res.status(204).end()
-        })
+        .then(res.status(204).end())
         .catch(error => next(error))
 })
 
@@ -97,9 +95,9 @@ app.put('/api/persons/:id', (req, res, next) => {
 
 //////////////////////////////error stuff///////////////////////////////////////////
 const unknownEndpoint = (req, res) => {
-    res.status(404).send({ error: "unknown endpoint" });
-};
-app.use(unknownEndpoint);
+    res.status(404).send({ error: 'unknown endpoint' })
+}
+app.use(unknownEndpoint)
 
 
 const errorHandler = (error, request, response, next) => {
@@ -118,6 +116,6 @@ app.use(errorHandler)
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(`Server running on port ${PORT}`)
 
 })
